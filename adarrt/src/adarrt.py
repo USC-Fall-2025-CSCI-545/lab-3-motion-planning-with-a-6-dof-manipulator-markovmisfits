@@ -146,6 +146,31 @@ class AdaRRT():
         :returns: The new Node object. On failure (collision), returns None.
         """
         # FILL in your code here
+        
+        # Get direction vector from neighbor to sample
+        direction = sample - neighbor.state
+
+        # Get distance (magnitude) of vector
+        distance = np.linalg.norm(direction)
+
+        # If distance is 0, cannot get unit vector
+        if distance == 0:
+            return None
+        
+        # Normalize direction vector to get unit vector
+        unit_vector = direction / distance
+
+        # Get new state by moving step_size in direction of unit vector
+        new_state = neighbor.state + self.step_size * unit_vector
+
+        # Check if new state is in collision
+        if not self._check_for_collision(new_state):
+            # If no collision, add new node to tree
+            new_node = neighbor.add_child(new_state)
+            return new_node
+        
+        # If in collision, return None
+        return None
 
     def _check_for_completion(self, node):
         """
@@ -155,6 +180,12 @@ class AdaRRT():
         :returns: Boolean indicating node is close enough for completion.
         """
         # FILL in your code here
+
+        # Calculate distance between node's and goal's states
+        distance = np.linalg.norm(node.state - self.goal.state)
+
+        # If distance is less than precision threshold
+        return distance < self.goal_precision
 
     def _trace_path_from_start(self, node=None):
         """
@@ -166,6 +197,24 @@ class AdaRRT():
             ending at the goal state.
         """
         # FILL in your code here
+
+        if node is None:
+            node = self.goal
+
+        path = []
+        current_node = node
+
+        while current_node is not None:
+            # add node's state to path
+            path.append(current_node.state)
+
+            # move to parent node
+            current_node = current_node.parent
+        
+        # Reverse to get path from start to goal
+        path.reverse()
+
+        return path
 
     def _check_for_collision(self, sample):
         """
