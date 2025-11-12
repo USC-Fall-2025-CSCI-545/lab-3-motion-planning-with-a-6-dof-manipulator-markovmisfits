@@ -6,6 +6,7 @@ import time
 import adapy
 import numpy as np
 import rospy
+from gi.overrides.GObject import new_name
 
 
 class AdaRRT():
@@ -106,14 +107,20 @@ class AdaRRT():
         """
         for k in range(self.max_iter):
             # FILL in your code here
+            sample = self._get_random_sample()
+            nearestNeighbor = self._get_nearest_neighbor(sample)
+            new_node = self._extend_sample(sample, nearestNeighbor)
 
             if new_node and self._check_for_completion(new_node):
                 # FILL in your code here
-
+                new_node.add_child(self.goal.state)
+                self.goal.parent = new_node
+                path=self._trace_path_from_start(self.goal)
                 return path
 
         print("Failed to find path from {0} to {1} after {2} iterations!".format(
             self.start.state, self.goal.state, self.max_iter))
+        return None
 
     def _get_random_sample(self):
         """
@@ -123,6 +130,11 @@ class AdaRRT():
             space.
         """
         # FILL in your code here
+        sample = np.random.uniform(
+            low = self.joint_lower_limits,
+            high = self.joint_upper_limits
+        )
+        return sample
 
     def _get_nearest_neighbor(self, sample):
         """
@@ -133,6 +145,14 @@ class AdaRRT():
         :returns: A Node object for the closest neighbor.
         """
         # FILL in your code here
+        minDistance = float('inf')
+        nearestNeighbor = None
+        for node in self.start:
+            distance = np.linalg.norm(node.state - sample)
+            if distance < minDistance:
+                minDistance = distance
+                nearestNeighbor = node
+        return nearestNeighbor
 
     def _extend_sample(self, sample, neighbor):
         """
