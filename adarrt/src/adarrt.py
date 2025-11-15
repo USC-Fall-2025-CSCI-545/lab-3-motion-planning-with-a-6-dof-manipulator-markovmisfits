@@ -212,8 +212,8 @@ class AdaRRT():
         # Calculate distance between node's and goal's states
         distance = np.linalg.norm(node.state - self.goal.state)
 
-        # If distance is less than precision threshold
-        return distance < self.goal_precision
+        # If distance is at most precision threshold
+        return distance <= self.goal_precision
 
     def _trace_path_from_start(self, node=None):
         """
