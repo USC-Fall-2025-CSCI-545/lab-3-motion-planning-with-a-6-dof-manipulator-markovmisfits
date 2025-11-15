@@ -6,7 +6,6 @@ import time
 import adapy
 import numpy as np
 import rospy
-from gi.overrides.GObject import new_name
 
 
 class AdaRRT():
