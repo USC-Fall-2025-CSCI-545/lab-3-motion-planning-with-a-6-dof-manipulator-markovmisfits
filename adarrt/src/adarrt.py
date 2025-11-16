@@ -6,7 +6,7 @@ import time
 import adapy
 import numpy as np
 import rospy
-from gi.overrides.GObject import new_name
+# from gi.overrides.GObject import new_name
 
 
 class AdaRRT():
@@ -330,3 +330,4 @@ if __name__ == '__main__':
     parser.set_defaults(is_sim=True)
     args = parser.parse_args()
     main(args.is_sim)
+
