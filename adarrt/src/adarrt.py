@@ -315,7 +315,7 @@ def main(is_sim):
             waypoints.append((0.0 + i, waypoint))
 
         t0 = time.clock()
-        traj = ada.compute_joint_space_path(
+        traj = ada.compute_smooth_joint_space_path(
             ada.get_arm_state_space(), waypoints)
         t = time.clock() - t0
         print(str(t) + "seconds elapsed")
@@ -330,4 +330,5 @@ if __name__ == '__main__':
     parser.set_defaults(is_sim=True)
     args = parser.parse_args()
     main(args.is_sim)
+
 
