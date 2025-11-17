@@ -61,7 +61,7 @@ class AdaRRT():
                  joint_upper_limits=None,
                  ada_collision_constraint=None,
                  step_size=0.25,
-                 goal_precision=1.0,
+                 goal_precision=0.2,
                  max_iter=10000):
         """
         :param start_state: Array representing the starting state.
@@ -107,7 +107,7 @@ class AdaRRT():
         """
         for k in range(self.max_iter):
             # FILL in your code here
-            sample = self._get_random_sample()
+            sample = self._get_random_sample() if np.random.rand() < 0.8 else self._get_random_sample_near_goal()
             nearestNeighbor = self._get_nearest_neighbor(sample)
             new_node = self._extend_sample(sample, nearestNeighbor)
 
@@ -135,6 +135,15 @@ class AdaRRT():
             high = self.joint_upper_limits
         )
         return sample
+
+    def _get_random_sample_near_goal(self):
+        max_dist = .05
+
+        # ensure adding|subtracting max_dist doesn't violate joint limits
+        low = np.maximum(self.goal.state - max_dist, self.joint_lower_limits)
+        high = np.minimum(self.goal.state + max_dist, self.joint_upper_limits)
+
+        return np.random.uniform(low = low, high = high)
 
     def _get_nearest_neighbor(self, sample):
         """
@@ -204,8 +213,8 @@ class AdaRRT():
         # Calculate distance between node's and goal's states
         distance = np.linalg.norm(node.state - self.goal.state)
 
-        # If distance is less than precision threshold
-        return distance < self.goal_precision
+        # If distance is at most precision threshold
+        return distance <= self.goal_precision
 
     def _trace_path_from_start(self, node=None):
         """
@@ -261,7 +270,7 @@ def main(is_sim):
     armHome = [-1.5, 3.22, 1.23, -2.19, 1.8, 1.2]
     goalConfig = [-1.72, 4.44, 2.02, -2.04, 2.66, 1.39]
     delta = 0.25
-    eps = 1.0
+    eps = 0.2
 
     if is_sim:
         ada.set_positions(goalConfig)
